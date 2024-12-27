@@ -1,7 +1,5 @@
 package com.devsuperior.dsmeta.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devsuperior.dsmeta.dto.SaleMinDTO;
+import com.devsuperior.dsmeta.dto.SaleReportDTO;
 import com.devsuperior.dsmeta.dto.SaleSummaryDTO;
 import com.devsuperior.dsmeta.services.SaleService;
 
@@ -30,9 +29,14 @@ public class SaleController {
 	}
 
 	@GetMapping(value = "/report")
-	public ResponseEntity<List<SaleMinDTO>> getReport() {
-		// TODO
-		return null;
+	public ResponseEntity<Page<SaleReportDTO>> getReport(
+			Pageable pageable,
+			@RequestParam(name = "minDate", required = false) String minDate,
+			@RequestParam(name = "maxDate", required = false) String maxDate,
+			@RequestParam(name = "name", required = false) String name
+	) {
+		Page<SaleReportDTO> dto = service.findReport(pageable, minDate, maxDate, name);
+		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping(value = "/summary")
@@ -41,7 +45,7 @@ public class SaleController {
 				@RequestParam(name = "minDate", required = false) String minDate,
 				@RequestParam(name = "maxDate", required = false) String maxDate
 	) {
-		Page<SaleSummaryDTO> dto = service.findAll(pageable, minDate, maxDate);
+		Page<SaleSummaryDTO> dto = service.findSummary(pageable, minDate, maxDate);
 		return ResponseEntity.ok(dto);
 	}
 }

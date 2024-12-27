@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.devsuperior.dsmeta.dto.SaleMinDTO;
+import com.devsuperior.dsmeta.dto.SaleReportDTO;
 import com.devsuperior.dsmeta.dto.SaleSummaryDTO;
 import com.devsuperior.dsmeta.entities.Sale;
 import com.devsuperior.dsmeta.repositories.SaleRepository;
@@ -27,8 +28,28 @@ public class SaleService {
 		Sale entity = result.get();
 		return new SaleMinDTO(entity);
 	}
+	
+	public Page<SaleReportDTO> findReport(Pageable pageable, String minDate, String maxDate, String name) {
+		LocalDate startDate = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()).minusYears(1L);
+		LocalDate endDate = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault());
+		
+		if (isNullOrEmpty(name)) {
+			name = "%%%";
+		} 
+		
+		if (!isNullOrEmpty(minDate)) {
+			startDate = formattedDate(minDate);
+		} 
 
-	public Page<SaleSummaryDTO> findAll(Pageable pageable, String minDate, String maxDate) {
+		if (!isNullOrEmpty(maxDate)) {
+			endDate = formattedDate(maxDate);
+		} 
+		
+		Page<SaleReportDTO> result = repository.searchReport(pageable, startDate, endDate, name);
+		return result;
+	}
+
+	public Page<SaleSummaryDTO> findSummary(Pageable pageable, String minDate, String maxDate) {
 		LocalDate startDate = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()).minusYears(1L);
 		LocalDate endDate = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault());
 		
@@ -40,7 +61,7 @@ public class SaleService {
 			endDate = formattedDate(maxDate);
 		} 
 		
-		Page<SaleSummaryDTO> result = repository.searchAll(pageable, startDate, endDate);
+		Page<SaleSummaryDTO> result = repository.searchSummary(pageable, startDate, endDate);
 		return result;
 	}
 
